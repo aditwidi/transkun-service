@@ -49,7 +49,7 @@ def transcribe_audio():
         return "No selected file", 400
     
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    folder_name = f"output/{timestamp}"
+    folder_name = f"output_midi/{timestamp}"
     
     with tempfile.TemporaryDirectory() as temp_dir:
         input_path = os.path.join(temp_dir, file.filename)
