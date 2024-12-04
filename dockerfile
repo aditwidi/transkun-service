@@ -13,14 +13,14 @@ WORKDIR /app
 # Copy the requirements.txt file into the container
 COPY requirements.txt .
 
+# Copy the Google Cloud credentials into the container
+COPY storageAdmin.json /app/storageAdmin.json
+
 # Install the dependencies specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code into the container
 COPY . .
-
-# Copy the Google Cloud credentials into the container
-COPY credentialKey/storageAdmin.json /app/credentialKey/storageAdmin.json
 
 # Expose the port that the Flask app runs on
 EXPOSE 8080

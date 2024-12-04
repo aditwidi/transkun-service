@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # Google Cloud Storage setup
 BUCKET_NAME = 'aira-bucket-backup'
-GCS_CREDENTIALS_PATH = 'credentialKey/storageAdmin.json'
+GCS_CREDENTIALS_PATH = 'storageAdmin.json'
 
 def remove_extension(file):
     """Remove the file extension from a filename."""
@@ -40,32 +40,29 @@ def upload_to_gcs(local_file_path, bucket_name, destination_blob_name):
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe_audio():
-    if 'files' not in request.files:
+    if 'file' not in request.files:
         return "No file part", 400
     
-    files = request.files.getlist('files')
+    file = request.files['file']
     
-    if not files or all(file.filename == '' for file in files):
-        return "No selected files", 400
+    if file.filename == '':
+        return "No selected file", 400
     
-    gcs_urls = []
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     folder_name = f"output/{timestamp}"
     
     with tempfile.TemporaryDirectory() as temp_dir:
-        for file in files:
-            input_path = os.path.join(temp_dir, file.filename)
-            file.save(input_path)
-            try:
-                output_path = transcribe(input_path, temp_dir)
-                # Upload the transcribed file to the GCS folder
-                gcs_url = upload_to_gcs(output_path, BUCKET_NAME, f"{folder_name}/{os.path.basename(output_path)}")
-                gcs_urls.append(gcs_url)
-            except Exception as e:
-                return str(e), 500
+        input_path = os.path.join(temp_dir, file.filename)
+        file.save(input_path)
+        try:
+            output_path = transcribe(input_path, temp_dir)
+            # Upload the transcribed file to the GCS folder
+            gcs_url = upload_to_gcs(output_path, BUCKET_NAME, f"{folder_name}/{os.path.basename(output_path)}")
+        except Exception as e:
+            return str(e), 500
     
-    # Return a success message with GCS URLs
-    return jsonify({"message": "Audio successfully transcribed", "files": gcs_urls}), 200
+    # Return a success message with GCS URL
+    return jsonify({"message": "Audio successfully transcribed", "file": gcs_url}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
