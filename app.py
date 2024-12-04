@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # Google Cloud Storage setup
 BUCKET_NAME = 'aira-bucket-backup'
-GCS_CREDENTIALS_PATH = 'storageAdmin.json'
+GCS_CREDENTIALS_PATH = 'credentialKey/storageAdmin.json'
 
 def remove_extension(file):
     """Remove the file extension from a filename."""
