@@ -4,11 +4,12 @@ import tempfile
 import subprocess
 from google.cloud import storage
 from datetime import datetime
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
 # Google Cloud Storage setup
-BUCKET_NAME = 'aira-bucket-backup'
+BUCKET_NAME = 'aira-bucket-backup'  # Ensure this name is valid according to GCS naming conventions
 GCS_CREDENTIALS_PATH = 'credentialKey/storageAdmin.json'
 
 def remove_extension(file):
@@ -52,7 +53,8 @@ def transcribe_audio():
     folder_name = f"output_midi/{timestamp}"
     
     with tempfile.TemporaryDirectory() as temp_dir:
-        input_path = os.path.join(temp_dir, file.filename)
+        sanitized_filename = secure_filename(file.filename)
+        input_path = os.path.join(temp_dir, sanitized_filename)
         file.save(input_path)
         try:
             output_path = transcribe(input_path, temp_dir)
